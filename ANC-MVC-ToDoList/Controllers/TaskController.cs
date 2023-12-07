@@ -32,6 +32,17 @@ namespace ANC_MVC_ToDoList.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EndTask(long id)
+        {
+            var response = await _taskService.EndTask(id);
+            if (response.StatusCode == ToDoList.Domain.Enum.StatusCode.OK)
+            {
+                return Ok(new { description = response.Description });
+            }
+            return BadRequest(new { description = response.Description });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> TaskHandler(TaskFilter filter)
         {
             var response = await _taskService.GetTasks(filter);

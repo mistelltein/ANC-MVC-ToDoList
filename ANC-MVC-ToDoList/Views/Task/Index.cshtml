@@ -51,6 +51,14 @@
     <script type="text/javascript" src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success'
+            },
+            buttonStyling: false
+        })
+
         let dataTable = $('#taskTableId').DataTable({
             info: false,
             serverSide: true,
@@ -76,12 +84,47 @@
                 }
             ],
             createdRow: function (nRow, data) {
+
+                var handlerComplete = function () {
+                    swalWithBootstrapButtons.fire({
+                        title: "Complete the task?",
+                        icon: "warning",
+                        confirmButtonText: "Yes!",
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                type: 'POST',
+                                url: '@Url.Action("EndTask")',
+                                data: { id: data.id },
+                                success: function (response) {
+                                    Swal.fire({
+                                        title: 'Information',
+                                        text: response.description,
+                                        icon: 'success',
+                                        confirmButtonText: 'Ok'
+                                    })
+                                    dataTable.draw();
+                                },
+                                error: function (response) {
+                                    Swal.fire({
+                                        title: 'Information',
+                                        text: response.responseJSON.description,
+                                        icon: 'error',
+                                        confirmButtonText: 'Ok'
+                                    })
+                                }
+                            })
+                        }
+                    });
+                }
+
                 for (var i = 0; i < dataTable.columns().header().length - 1; i++) {
                     $('td', nRow).eq(i).css('cursor', 'pointer');
 
                     $('td', nRow).eq(i).on('click', null);
                 }
-                $('td button', nRow).eq(i).on('click', null);
+                $('td button', nRow).on('click', handlerComplete);
             }
         });
 

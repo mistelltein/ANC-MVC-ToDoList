@@ -73,11 +73,46 @@ public class TaskService : ITaskService
         }
     }
 
+    public async Task<IBaseResponse<bool>> EndTask(long id)
+    {
+        try
+        {
+            var task = await _taskRepository.GetAll().FirstOrDefaultAsync(x => x.Id == id);
+            if (task == null)
+            {
+                return new BaseResponse<bool>()
+                {
+                    Description = "The task was not found", 
+                    StatusCode = StatusCode.TaskNotFound
+                };
+            }
+            task.IsDone = true;
+
+            await _taskRepository.Update(task);
+
+            return new BaseResponse<bool>
+            {
+                Description = "The task is completed",
+                StatusCode = StatusCode.OK
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"[TaskService.EndTask]: {ex.Message}");
+            return new BaseResponse<bool>()
+            {
+                Description = $"{ex.Message}",
+                StatusCode = StatusCode.InternalServerError
+            };
+        }
+    }
+
     public async Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks(TaskFilter filter)
     {
         try
         {
             var tasks = await _taskRepository.GetAll()
+                .Where(x => !x.IsDone)
                 .WhereIf(!string.IsNullOrWhiteSpace(filter.Name), x => x.Name == filter.Name)
                 .WhereIf(filter.Priority.HasValue, x => x.Priority == filter.Priority)
                 .Select(x => new TaskViewModel()
@@ -85,7 +120,7 @@ public class TaskService : ITaskService
                     Id = x.Id,
                     Name = x.Name,
                     Description = x.Description,
-                    IsDone = x.IsDone == true ? "The task is ready" : "The task is not ready",
+                    IsDone = x.IsDone == true ? "The task is complete" : "The task is not complete",
                     Priority = x.Priority.GetDisplayName(),
                     Created = x.Created.ToLongDateString()
                 })
