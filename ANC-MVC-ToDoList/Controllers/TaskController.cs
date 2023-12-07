@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using ToDoList.Domain.Filters.Task;
 using ToDoList.Domain.ViewModels.Task;
 using ToDoList.Service.Interfaces;
 
@@ -31,9 +32,9 @@ namespace ANC_MVC_ToDoList.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> TaskHandler()
+        public async Task<IActionResult> TaskHandler(TaskFilter filter)
         {
-            var response = await _taskService.GetTasks();
+            var response = await _taskService.GetTasks(filter);
             return Json(new {data = response.Data});
         }
     }

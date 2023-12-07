@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ToDoList.Domain.Entity;
+using ToDoList.Domain.Filters.Task;
 using ToDoList.Domain.Response;
 using ToDoList.Domain.ViewModels.Task;
 
@@ -13,6 +14,6 @@ namespace ToDoList.Service.Interfaces
     {
         Task<IBaseResponse<TaskEntity>> Create(CreateTaskViewModel model);
 
-        Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks();
+        Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks(TaskFilter filter);
     }
 }
