@@ -20,6 +20,6 @@ namespace ToDoList.Service.Interfaces
 
         Task<IBaseResponse<bool>> EndTask(long id);
 
-        Task<IBaseResponse<IEnumerable<TaskViewModel>>> GetTasks(TaskFilter filter);
+        Task<DataTableResult> GetTasks(TaskFilter filter);
     }
 }

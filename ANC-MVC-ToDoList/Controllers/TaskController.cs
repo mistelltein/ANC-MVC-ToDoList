@@ -70,8 +70,17 @@ namespace ANC_MVC_ToDoList.Controllers
         [HttpPost]
         public async Task<IActionResult> TaskHandler(TaskFilter filter)
         {
+            var start = Request.Form["start"].FirstOrDefault();
+            var length = Request.Form["length"].FirstOrDefault();
+
+            var pageSize = length != null ? Convert.ToInt32(length) : 0;
+            var skip = start != null ? Convert.ToInt32(start) : 0;
+
+            filter.Skip = skip;
+            filter.PageSize = pageSize;
+
             var response = await _taskService.GetTasks(filter);
-            return Json(new {data = response.Data});
+            return Json(new { recordsFiltred = response.Total, recordsTotal = response.Total, data = response.Data });
         }
     }
 }
