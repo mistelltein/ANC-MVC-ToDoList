@@ -20,6 +20,12 @@ namespace ANC_MVC_ToDoList.Controllers
             return View();
         }
 
+        public async Task<IActionResult> GetCompletedTasks()
+        {
+            var result = await _taskService.GetCompletedTasks();
+            return Json(new { data = result.Data });    
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateTaskViewModel model)
         {
