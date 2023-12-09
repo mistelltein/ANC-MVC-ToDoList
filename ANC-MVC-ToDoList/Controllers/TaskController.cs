@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Globalization;
 using ToDoList.Domain.Filters.Task;
+using ToDoList.Domain.Helpers;
 using ToDoList.Domain.ViewModels.Task;
 using ToDoList.Service.Interfaces;
 
@@ -18,6 +20,23 @@ namespace ANC_MVC_ToDoList.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CalculateCompletedTasks()
+        {
+            var response = await _taskService.CalculateCompletedTasks();
+            if (response.StatusCode == ToDoList.Domain.Enum.StatusCode.OK)
+            {
+                var csvService = new CsvBaseService<IEnumerable<TaskViewModel>>();
+
+                CultureInfo englishCulture = new CultureInfo("en-US");
+                var formattedDate = DateTime.Now.ToString("MMMM d", englishCulture);
+
+                var uploadFile = csvService.UploadFile(response.Data);
+                return File(uploadFile, "text/csv", $"Statistic for {formattedDate}.csv");
+            }
+            return BadRequest(new { description = response.Description });
         }
 
         public async Task<IActionResult> GetCompletedTasks()
